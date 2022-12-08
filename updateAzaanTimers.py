@@ -128,6 +128,13 @@ strJobComment = 'rpiAdhanClockJob'
 system_cron.remove_all(comment=strJobComment)
 
 # Calculate prayer times
+
+# If you need to setup Offsets / Tune the timings as precautions, uncomment this line
+#PT.tune({ 'fajr': 2, 'sunrise': 0, 'dhuhr': 3, 'asr': 3, 'maghrib': 3, 'isha': 3 })
+
+# If you need to use Hanafi asr timings instead of standard, uncomment this line
+#PT.adjust({'asr': 'Hanafi'})
+
 times = PT.getTimes((now.year,now.month,now.day), (lat, lng), utcOffset, isDst) 
 print(times['fajr'])
 print(times['dhuhr'])
