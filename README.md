@@ -1,20 +1,21 @@
 # Raspberry Pi Adhan Clock
-This projects uses a python script which automatically calculates [adhan](https://en.wikipedia.org/wiki/Adhan) times every day and plays all five adhans at their scheduled time using cron. 
+This project uses a python script which automatically calculates [adhan](https://en.wikipedia.org/wiki/Adhan) times every day and plays all five adhans at their scheduled time using cron. 
 
 ## Prerequisites
 1. Raspberry Pi running Raspbian
-  1. I would stay away from Raspberry Pi zero esp if you're new to this stuff since it doesn't come with a built in audio out port.
-  2. Also, if you haven't worked with raspberry pi before, I would highly recommend using [these](https://www.raspberrypi.org/documentation/installation/noobs.md) instructions to get it up and running: https://www.raspberrypi.org/documentation/installation/noobs.md
+  1. I would stay away from Raspberry Pi zero esp if you're new to this stuff since it doesn't come with a built in audio out port.
+  2. Also, if you haven't worked with raspberry pi before, I would highly recommend using [these](https://www.raspberrypi.org/documentation/installation/noobs.md) instructions to get it up and running: https://www.raspberrypi.org/documentation/installation/noobs.md
 2. Speakers
 3. Auxiliary audio cable
-4. sudo apt install mpg321 ( the replacement of the old omxplayer tool)
+
 
 ## Instructions
 1. Install git: Go to raspberry pi terminal (command line interface) and install `git`
-  * `$ sudo apt-get install git`
+  * `$ sudo apt-get install git`
 2. Clone repo: Clone this repository on your raspberry pi in your `home` directory. (Tip: run `$ cd ~` to go to your home directory)
-  * `$ git clone <get repo clone url from github and put it here>`
-  * After doing that you should see an `adhan` direcotry in your `home` directory. 
+  * `$ git clone <get repo clone url from github and put it here>`
+  * After doing that you should see an `adhan` directory in your `home` directory. 
+3. sudo apt install mpg321 (the replacement of the old omxplayer tool)
 
 ## Run it for the first time
 Run this command:
@@ -25,9 +26,9 @@ $ /home/pi/adhan/updateAzaanTimers.py --lat <YOUR_LAT> --lng <YOUR_LNG> --method
 
 Replace the arguments above with your location information and calculation method:
 * Set the latitude and longitude so it can calculate accurate prayer times for that location.
-* Set adhan time [calculation method](http://praytimes.org/manual#Set_Calculation_Method).
+* Set adhan time calculation method (refer: http://praytimes.org/manual#Set_Calculation_Method).
 
-If everythig worked, your output will look something like this:
+If everything worked, your output will look something like this:
 ```
 20 60 Egypt 0 0
 05:51
@@ -101,4 +102,4 @@ chmod u+x ./after-hooks.d/01-resume-quran-speaker.sh
 I have made modifications / bug fixes but I've used the following as starting point:
 * Python code to calculate adhan times: http://praytimes.org/code/ 
 * Basic code to turn the above into an adhan clock: http://randomconsultant.blogspot.co.uk/2013/07/turn-your-raspberry-pi-into-azaanprayer.html
-* Cron scheduler: https://pypi.python.org/pypi/python-crontab/ 
+* Cron scheduler: https://pypi.python.org/pypi/python-crontab/ 
