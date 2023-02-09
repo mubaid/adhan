@@ -70,6 +70,7 @@ class PrayTimes():
 		'imsak'    : 'Imsak',
 		'fajr'     : 'Fajr',
 		'sunrise'  : 'Sunrise',
+		'dahwaekubra'   : 'Dahwa-e-kubra',
 		'dhuhr'    : 'Dhuhr',
 		'asr'      : 'Asr',
 		'sunset'   : 'Sunset',
@@ -213,6 +214,10 @@ class PrayTimes():
 		eqt = self.sunPosition(self.jDate + time)[1]
 		return self.fixhour(12 - eqt)
 
+	# compute dahwaekubraTime time
+	def dahwaekubraTime(self, dhuhr, fajr, sunrise):
+		return dhuhr - self.timeDiff(fajr, sunrise) / 2
+
 	# compute the time at which sun reaches a specific angle below horizon
 	def sunAngleTime(self, angle, time, direction = None):
 		try:
@@ -270,19 +275,20 @@ class PrayTimes():
 		fajr    = self.sunAngleTime(self.eval(params['fajr']), times['fajr'], 'ccw')
 		sunrise = self.sunAngleTime(self.riseSetAngle(self.elv), times['sunrise'], 'ccw')
 		dhuhr   = self.midDay(times['dhuhr'])
+		dahwaekubra  = self.dahwaekubraTime(dhuhr, fajr, sunrise)
 		asr     = self.asrTime(self.asrFactor(params['asr']), times['asr'])
 		sunset  = self.sunAngleTime(self.riseSetAngle(self.elv), times['sunset'])
 		maghrib = self.sunAngleTime(self.eval(params['maghrib']), times['maghrib'])
 		isha    = self.sunAngleTime(self.eval(params['isha']), times['isha'])
 		return {
-			'imsak': imsak, 'fajr': fajr, 'sunrise': sunrise, 'dhuhr': dhuhr,
+			'imsak': imsak, 'fajr': fajr, 'sunrise': sunrise, 'dahwaekubra': dahwaekubra, 'dhuhr': dhuhr,
 			'asr': asr, 'sunset': sunset, 'maghrib': maghrib, 'isha': isha
 		}
 
 	# compute prayer times
 	def computeTimes(self):
 		times = {
-			'imsak': 5, 'fajr': 5, 'sunrise': 6, 'dhuhr': 12,
+			'imsak': 5, 'fajr': 5, 'sunrise': 6, 'dahwaekubra': 11, 'dhuhr': 12,
 			'asr': 13, 'sunset': 18, 'maghrib': 18, 'isha': 18
 		}
 		# main iterations
