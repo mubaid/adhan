@@ -1,7 +1,26 @@
-/.idea
-*.log
-*.pyc
-adhan.log
+# Settings (contains location, volume, prayer config)
 .settings
+.settings.json
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Hook scripts (user-specific, not committed)
 before-hooks.d/*.sh
 after-hooks.d/*.sh
