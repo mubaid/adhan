@@ -1,0 +1,17 @@
+[Unit]
+Description=Adhan Clock Web Configuration Server
+After=network.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/adhan
+ExecStart=/usr/bin/python3 /root/adhan/web_server.py
+Environment=PORT=5001
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
