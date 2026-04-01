@@ -1,105 +1,207 @@
 # Raspberry Pi Adhan Clock
-This project uses a python script which automatically calculates [adhan](https://en.wikipedia.org/wiki/Adhan) times every day and plays all five adhans at their scheduled time using cron. 
+
+This project automatically calculates [adhan](https://en.wikipedia.org/wiki/Adhan) times every day and plays all prayers at their scheduled time using cron.
+
+Includes a **web-based configuration server** so you can manage settings from any browser on your local network.
 
 ## Prerequisites
-1. Raspberry Pi running Raspbian
-  1. I would stay away from Raspberry Pi zero esp if you're new to this stuff since it doesn't come with a built in audio out port.
-  2. Also, if you haven't worked with raspberry pi before, I would highly recommend using [these](https://www.raspberrypi.org/documentation/installation/noobs.md) instructions to get it up and running: https://www.raspberrypi.org/documentation/installation/noobs.md
-2. Speakers
-3. Auxiliary audio cable
 
+1. Any Linux system running Python 3 (Raspberry Pi recommended)
+2. Speakers with auxiliary audio cable
+3. `mpg321` — audio player (`sudo apt install mpg321`)
+4. `python3`, `flask`, `python-crontab` — Python dependencies
 
-## Instructions
-1. Install git: Go to raspberry pi terminal (command line interface) and install `git`
-  * `$ sudo apt-get install git`
-2. Clone repo: Clone this repository on your raspberry pi in your `home` directory. (Tip: run `$ cd ~` to go to your home directory)
-  * `$ git clone <get repo clone url from github and put it here>`
-  * After doing that you should see an `adhan` directory in your `home` directory. 
-3. sudo apt install mpg321 (the replacement of the old omxplayer tool)
+> **Note:** `mpg321` is the audio player used by `playAzaan.sh`. Install it before first run.
 
-## Run it for the first time
-Run this command:
+## Quick Start
+
+### 1. Clone the repository
 
 ```bash
-$ /home/pi/adhan/updateAzaanTimers.py --lat <YOUR_LAT> --lng <YOUR_LNG> --method <METHOD>
+sudo apt-get install git
+cd ~
+git clone <repo-url> adhan
+cd adhan
 ```
 
-Replace the arguments above with your location information and calculation method:
-* Set the latitude and longitude so it can calculate accurate prayer times for that location.
-* Set adhan time calculation method (refer: http://praytimes.org/manual#Set_Calculation_Method).
-
-If everything worked, your output will look something like this:
-```
-20 60 Egypt 0 0
-05:51
-11:52
-14:11
-16:30
-17:53
-51 5 * * * /home/pi/adhan/playAzaan.sh /home/pi/adhan/Adhan-fajr.mp3 0 # rpiAdhanClockJob
-52 11 * * * /home/pi/adhan/playAzaan.sh /home/pi/adhan/Adhan-Madinah.mp3 0 # rpiAdhanClockJob
-11 14 * * * /home/pi/adhan/playAzaan.sh /home/pi/adhan/Adhan-Madinah.mp3 0 # rpiAdhanClockJob
-30 16 * * * /home/pi/adhan/playAzaan.sh /home/pi/adhan/Adhan-Madinah.mp3 0 # rpiAdhanClockJob
-53 17 * * * /home/pi/adhan/playAzaan.sh /home/pi/adhan/Adhan-Madinah.mp3 0 # rpiAdhanClockJob
-0 1 * * * /home/pi/adhan/updateAzaanTimers.py >> /home/pi/adhan/adhan.log 2>&1 # rpiAdhanClockJob
-@monthly truncate -s 0 /home/pi/adhan/adhan.log 2>&1 # rpiAdhanClockJob
-Script execution finished at: 2017-01-06 21:22:31.512667
-```
-
-If you look at the last few lines, you'll see that 5 adhan times have been scheduled. Then there is another line at the end which makes sure that at 1am every day the same script will run and calculate adhan times for that day. And lastly, there is a line to clear logs on a monthly basis so that your log file doesn't grow too big.
-
-Note that for later runs you do not have to supply any arguments as they are saved in `/home/pi/adhan/.settings`.
-
-VOILA! You're done!! Plug in your speakers and enjoy!
-
-Please see the [manual](http://praytimes.org/manual) for advanced configuration instructions. 
-
-There are 2 additional arguments that are optional, you can set them in the first run or
-further runs: `--fajr-azaan-volume` and `azaan-volume`. You can control the volume of the Azaan
-by supplying numbers in millibels. To get more information on how to select the values, run the command with `-h`.
-
-## Configuring custom actions before/after adhan
-
-Sometimes it is needed to run custom commands either before, after or before
-and after playing adhan. For example, if you have
-[Quran playing continuously](https://github.com/LintangWisesa/RPi_QuranSpeaker),
-you would want to pause and resume the playback. Another example, is to set your
-status on a social network, or a calendar, to block/unblock the Internet
-using [pi.hole rules](https://docs.pi-hole.net/), ... etc.
-
-You can easily do this by adding scripts in the following directories:
-- `before-hooks.d`: Scripts to run before adhan playback
-- `after-hooks.d`: Scripts to run after adhan playback
-
-### Example:
-To pause/resume Quran playback if using the
-[RPi_QuranSpeaker](https://github.com/LintangWisesa/RPi_QuranSpeaker) project, place
-the following in 2 new files under the above 2 directories:
+### 2. Install dependencies
 
 ```bash
-# before-hooks.d/01-pause-quran-speaker.sh
+sudo apt install mpg321 python3-flask
+```
+
+### 3. First run
+
+Run the script with your location coordinates and calculation method:
+
+```bash
+python3 updateAzaanTimers.py --lat 25.28255 --lng 55.3622 --method Karachi
+```
+
+- `--lat` / `--lng` — your city's latitude and longitude
+- `--method` — prayer time calculation method (`MWL`, `ISNA`, `Egypt`, `Makkah`, `Karachi`, `Tehran`, `Jafari`)
+- `--fajr-azaan-volume` — Fajr adhan volume in millibels (default `0`)
+- `--azaan-volume` — volume for all other adhans in millibels (default `0`)
+
+This creates `.settings.json` and schedules cron jobs for daily prayer times.
+
+> Volume values use millibels: `1500` is loud, `-30000` is quiet, `0` is default.
+
+### 4. Start the web server
+
+```bash
+sudo cp adhan-web.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now adhan-web
+```
+
+The web UI is now available at `http://<your-pi-ip>:5001`.
+
+To start it manually without systemd:
+
+```bash
+python3 web_server.py
+```
+
+The port defaults to `5001`. Override with `PORT=8080 python3 web_server.py`.
+
+## Web UI
+
+The web server provides four pages:
+
+| Page | URL | Description |
+|------|-----|-------------|
+| Dashboard | `/` | Today's prayer times with next-prayer highlight |
+| Settings | `/settings` | Location, volumes, prayer enable/disable, time offsets, timezone, audio files |
+| Schedule | `/schedule` | View active cron jobs |
+| Logs | `/logs` | Recent log output with error highlighting |
+
+Changes made in the web UI are saved to `.settings.json` and can be applied to cron from the Settings page.
+
+## Configuration
+
+### Settings file
+
+Settings are stored in `.settings.json` in the project root. The CLI script (`updateAzaanTimers.py`) and web server both read from this file.
+
+If migrating from the legacy `.settings` CSV format, the web server or CLI will automatically migrate to JSON on first load.
+
+### Default configuration
+
+```json
+{
+  "latitude": null,
+  "longitude": null,
+  "timezone": "UTC",
+  "method": "Karachi",
+  "asr_method": "Hanafi",
+  "fajr_volume": 0,
+  "azaan_volume": 150,
+  "surahbaqarah_volume": 75,
+  "enabled_prayers": [
+    "dahwaekubra", "dhuhr", "asr", "maghrib", "isha", "surahbaqarah"
+  ],
+  "time_offsets": {
+    "fajr": 0,
+    "sunrise": -6,
+    "dhuhr": 3,
+    "asr": 3,
+    "maghrib": 3,
+    "isha": 0
+  },
+  "audio_files": {
+    "fajr": "Adhan-fajr.mp3",
+    "imsak": "imsak_start.mp3",
+    "dahwaekubra": "zawaal_start.mp3",
+    "dhuhr": "azaan-dua-new.mp3",
+    "asr": "azaan-dua-new.mp3",
+    "maghrib": "azaan-dua-new.mp3",
+    "isha": "azaan-dua-new.mp3",
+    "iftardua": "iftardua.mp3",
+    "surahbaqarah": "surahalbaqarah.mp3"
+  },
+  "surahbaqarah_time": "10:15"
+}
+```
+
+### Settings reference
+
+| Setting | Range | Description |
+|---------|-------|-------------|
+| `latitude` | -90 to 90 | Location latitude |
+| `longitude` | -180 to 180 | Location longitude |
+| `timezone` | IANA timezone name | Timezone for prayer time calculation (e.g. `Asia/Dubai`, `America/New_York`) |
+| `method` | `MWL`, `ISNA`, `Egypt`, `Makkah`, `Karachi`, `Tehran`, `Jafari` | Prayer time calculation method |
+| `asr_method` | `Standard`, `Hanafi` | Asr shadow calculation method |
+| `fajr_volume` | -30000 to 1500 | Fajr adhan volume in millibels |
+| `azaan_volume` | -30000 to 1500 | General adhan volume in millibels |
+| `surahbaqarah_volume` | -30000 to 1500 | Surah Baqarah playback volume in millibels |
+| `enabled_prayers` | list of prayer names | Which prayers to schedule |
+| `time_offsets` | minutes | Per-prayer minute offset |
+| `audio_files` | MP3 filename per prayer | Which audio file plays for each prayer |
+| `surahbaqarah_time` | `HH:MM` | Fixed time for Surah Baqarah playback |
+
+### Available prayers
+
+`fajr`, `imsak`, `dahwaekubra`, `dhuhr`, `asr`, `maghrib`, `iftardua`, `isha`, `surahbaqarah`
+
+The `surahbaqarah` prayer is scheduled at a fixed time (default `10:15`) regardless of prayer time calculations.
+
+## REST API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/settings` | `GET` | Get current settings as JSON |
+| `/api/settings` | `POST` | Save settings (JSON or form-encoded) |
+| `/api/times` | `GET` | Calculate prayer times. Optional `?date=YYYY-MM-DD` |
+| `/api/apply` | `POST` | Apply settings to cron |
+| `/api/schedule` | `GET` | List active cron jobs |
+| `/api/logs` | `GET` | Get recent logs. Optional `?lines=50` |
+| `/api/audio-files` | `GET` | List available MP3 files |
+
+## Hooks
+
+Run custom commands before/after adhan playback by placing scripts in:
+
+- `before-hooks.d/` — runs before adhan
+- `after-hooks.d/` — runs after adhan
+
+Example to pause/resume Quran playback:
+
+```bash
+# before-hooks.d/01-pause-quran.sh
 #!/usr/bin/env bash
 /home/pi/RPi_QuranSpeaker/pauser.py pause
-```
 
-```bash
-# after-hooks.d/01-resume-quran-speaker.sh
+# after-hooks.d/01-resume-quran.sh
 #!/usr/bin/env bash
 /home/pi/RPi_QuranSpeaker/pauser.py resume
 ```
 
-Do not forget to make the scripts executable:
-```bash
-chmod u+x ./before-hooks.d/01-pause-quran-speaker.sh
-chmod u+x ./after-hooks.d/01-resume-quran-speaker.sh
-```
+Make scripts executable with `chmod u+x`.
 
-## Tips:
-1. You can see your currently scheduled jobs by running `crontab -l`
-2. The output of the job that runs at 1am every night is being captured in `/home/pi/adhan/adhan.log`. This way you can keep track of all successful runs and any potential issues. This file will be truncated at midnight on the forst day of each month. To view the output type `$ cat /home/pi/adhan/adhan.log`
+## Service Management
+
+The adhan web server runs as a systemd service (`adhan-web.service`).
+
+| Command | Description |
+|---------|-------------|
+| `sudo systemctl start adhan-web` | Start the web server |
+| `sudo systemctl stop adhan-web` | Stop the web server |
+| `sudo systemctl restart adhan-web` | Restart the web server |
+| `sudo systemctl status adhan-web` | Check service status |
+| `sudo systemctl enable adhan-web` | Enable auto-start on boot |
+
+The service is configured with **auto-restart on failure** (`Restart=on-failure`, `RestartSec=5`) and a **start rate limit** of 5 attempts per 60 seconds to prevent crash loops.
+
+## Tips
+
+1. View scheduled jobs: `crontab -l`
+2. Logs are at `adhan.log`, truncated on the 1st of each month
+3. The port can be changed in the systemd unit file (`Environment=PORT=5001`) or via env var when running manually
 
 ## Credits
-I have made modifications / bug fixes but I've used the following as starting point:
-* Python code to calculate adhan times: http://praytimes.org/code/ 
-* Basic code to turn the above into an adhan clock: http://randomconsultant.blogspot.co.uk/2013/07/turn-your-raspberry-pi-into-azaanprayer.html
-* Cron scheduler: https://pypi.python.org/pypi/python-crontab/ 
+
+* Prayer time calculation: http://praytimes.org/code/
+* Adhan clock concept: http://randomconsultant.blogspot.co.uk/2013/07/turn-your-raspberry-pi-into-azaanprayer.html
+* Cron scheduler: https://pypi.python.org/pypi/python-crontab/
