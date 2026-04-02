@@ -209,7 +209,6 @@ print(times['dahwaekubra'])
 print(times['dhuhr'])
 print(times['asr'])
 print(times['maghrib'])
-print(times['iftardua'])
 print(times['isha'])
 
 # Prayer name to time key mapping
@@ -220,7 +219,7 @@ prayer_time_keys = {
     'dhuhr': 'dhuhr',
     'asr': 'asr',
     'maghrib': 'maghrib',
-    'iftardua': 'iftardua',
+    'iftardua': 'maghrib',
     'isha': 'isha',
 }
 
