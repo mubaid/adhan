@@ -91,7 +91,7 @@ def apply_cron_jobs(settings):
             'dhuhr': 'dhuhr',
             'asr': 'asr',
             'maghrib': 'maghrib',
-            'iftardua': 'maghrib',
+            'iftardua': 'iftardua',
             'isha': 'isha',
         }
 
@@ -154,10 +154,7 @@ def dashboard():
 
     if times:
         for key in prayer_keys:
-            if key == 'iftardua':
-                t = times.get('maghrib', '--:--')
-            else:
-                t = times.get(key, '--:--')
+            t = times.get(key, '--:--')
             is_enabled = key in settings.get('enabled_prayers', [])
             prayer_list.append({
                 'key': key,

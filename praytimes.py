@@ -75,6 +75,7 @@ class PrayTimes():
 		'asr'      : 'Asr',
 		'sunset'   : 'Sunset',
 		'maghrib'  : 'Maghrib',
+		'iftardua' : 'Iftar Dua',
 		'isha'     : 'Isha',
 		'midnight' : 'Midnight'
 	}
@@ -295,6 +296,8 @@ class PrayTimes():
 		for i in range(self.numIterations):
 			times = self.computePrayerTimes(times)
 		times = self.adjustTimes(times)
+		# Iftar dua is 9 minutes before maghrib
+		times['iftardua'] = times['maghrib'] - 9.0 / 60.0
 		# add midnight time
 		if self.settings['midnight'] == 'Jafari':
 			times['midnight'] = times['sunset'] + self.timeDiff(times['sunset'], times['fajr']) / 2

@@ -219,7 +219,7 @@ prayer_time_keys = {
     'dhuhr': 'dhuhr',
     'asr': 'asr',
     'maghrib': 'maghrib',
-    'iftardua': 'maghrib',
+    'iftardua': 'iftardua',
     'isha': 'isha',
 }
 
