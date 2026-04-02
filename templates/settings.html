@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+{% block title %}Settings - Adhan Clock{% endblock %}
+
+{% block content %}
+<h1>Settings</h1>
+
+<form id="settings-form" class="card"
+      hx-post="/api/settings"
+      hx-swap="none"
+      hx-headers='{"Content-Type":"application/json"}'
+      hx-on::before-request="this.lastEventData = getFormData(); requestAnimationFrame(function(){}) ;"
+      hx-on::config-request="event.detail.body = JSON.stringify(this.lastEventData);"
+      hx-on::after-request="handleSettingsResponse(event);">
+
+    <div class="form-section">
+        <h2>Location</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="latitude">Latitude</label>
+                <input type="number" id="latitude" name="latitude" step="0.00001" min="-90" max="90"
+                       value="{{ settings.latitude or '' }}" placeholder="e.g. 25.28255">
+            </div>
+            <div class="form-group">
+                <label for="longitude">Longitude</label>
+                <input type="number" id="longitude" name="longitude" step="0.00001" min="-180" max="180"
+                       value="{{ settings.longitude or '' }}" placeholder="e.g. 55.3622">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="timezone">Timezone</label>
+                <select id="timezone" name="timezone">
+                    <option value="UTC" {% if settings.timezone == 'UTC' %}selected{% endif %}>UTC</option>
+                    <optgroup label="Africa">
+                        <option value="Africa/Cairo" {% if settings.timezone == 'Africa/Cairo' %}selected{% endif %}>Africa/Cairo (UTC+2)</option>
+                        <option value="Africa/Johannesburg" {% if settings.timezone == 'Africa/Johannesburg' %}selected{% endif %}>Africa/Johannesburg (UTC+2)</option>
+                        <option value="Africa/Lagos" {% if settings.timezone == 'Africa/Lagos' %}selected{% endif %}>Africa/Lagos (UTC+1)</option>
+                        <option value="Africa/Nairobi" {% if settings.timezone == 'Africa/Nairobi' %}selected{% endif %}>Africa/Nairobi (UTC+3)</option>
+                    </optgroup>
+                    <optgroup label="Americas">
+                        <option value="America/Anchorage" {% if settings.timezone == 'America/Anchorage' %}selected{% endif %}>America/Anchorage (UTC-9)</option>
+                        <option value="America/Bogota" {% if settings.timezone == 'America/Bogota' %}selected{% endif %}>America/Bogota (UTC-5)</option>
+                        <option value="America/Chicago" {% if settings.timezone == 'America/Chicago' %}selected{% endif %}>America/Chicago (UTC-6)</option>
+                        <option value="America/Denver" {% if settings.timezone == 'America/Denver' %}selected{% endif %}>America/Denver (UTC-7)</option>
+                        <option value="America/Halifax" {% if settings.timezone == 'America/Halifax' %}selected{% endif %}>America/Halifax (UTC-4)</option>
+                        <option value="America/Havana" {% if settings.timezone == 'America/Havana' %}selected{% endif %}>America/Havana (UTC-5)</option>
+                        <option value="America/Los_Angeles" {% if settings.timezone == 'America/Los_Angeles' %}selected{% endif %}>America/Los Angeles (UTC-8)</option>
+                        <option value="America/Mexico_City" {% if settings.timezone == 'America/Mexico_City' %}selected{% endif %}>America/Mexico City (UTC-6)</option>
+                        <option value="America/New_York" {% if settings.timezone == 'America/New_York' %}selected{% endif %}>America/New York (UTC-5)</option>
+                        <option value="America/Panama" {% if settings.timezone == 'America/Panama' %}selected{% endif %}>America/Panama (UTC-5)</option>
+                        <option value="America/Phoenix" {% if settings.timezone == 'America/Phoenix' %}selected{% endif %}>America/Phoenix (UTC-7)</option>
+                        <option value="America/Santiago" {% if settings.timezone == 'America/Santiago' %}selected{% endif %}>America/Santiago (UTC-4)</option>
+                        <option value="America/Sao_Paulo" {% if settings.timezone == 'America/Sao_Paulo' %}selected{% endif %}>America/Sao Paulo (UTC-3)</option>
+                        <option value="America/Toronto" {% if settings.timezone == 'America/Toronto' %}selected{% endif %}>America/Toronto (UTC-5)</option>
+                        <option value="America/Vancouver" {% if settings.timezone == 'America/Vancouver' %}selected{% endif %}>America/Vancouver (UTC-8)</option>
+                    </optgroup>
+                    <optgroup label="Asia">
+                        <option value="Asia/Baghdad" {% if settings.timezone == 'Asia/Baghdad' %}selected{% endif %}>Asia/Baghdad (UTC+3)</option>
+                        <option value="Asia/Bahrain" {% if settings.timezone == 'Asia/Bahrain' %}selected{% endif %}>Asia/Bahrain (UTC+3)</option>
+                        <option value="Asia/Bangkok" {% if settings.timezone == 'Asia/Bangkok' %}selected{% endif %}>Asia/Bangkok (UTC+7)</option>
+                        <option value="Asia/Colombo" {% if settings.timezone == 'Asia/Colombo' %}selected{% endif %}>Asia/Colombo (UTC+5:30)</option>
+                        <option value="Asia/Dhaka" {% if settings.timezone == 'Asia/Dhaka' %}selected{% endif %}>Asia/Dhaka (UTC+6)</option>
+                        <option value="Asia/Dubai" {% if settings.timezone == 'Asia/Dubai' %}selected{% endif %}>Asia/Dubai (UTC+4)</option>
+                        <option value="Asia/Hong_Kong" {% if settings.timezone == 'Asia/Hong_Kong' %}selected{% endif %}>Asia/Hong Kong (UTC+8)</option>
+                        <option value="Asia/Jakarta" {% if settings.timezone == 'Asia/Jakarta' %}selected{% endif %}>Asia/Jakarta (UTC+7)</option>
+                        <option value="Asia/Jerusalem" {% if settings.timezone == 'Asia/Jerusalem' %}selected{% endif %}>Asia/Jerusalem (UTC+2)</option>
+                        <option value="Asia/Karachi" {% if settings.timezone == 'Asia/Karachi' %}selected{% endif %}>Asia/Karachi (UTC+5)</option>
+                        <option value="Asia/Kolkata" {% if settings.timezone == 'Asia/Kolkata' %}selected{% endif %}>Asia/Kolkata (UTC+5:30)</option>
+                        <option value="Asia/Kuala_Lumpur" {% if settings.timezone == 'Asia/Kuala_Lumpur' %}selected{% endif %}>Asia/Kuala Lumpur (UTC+8)</option>
+                        <option value="Asia/Kuwait" {% if settings.timezone == 'Asia/Kuwait' %}selected{% endif %}>Asia/Kuwait (UTC+3)</option>
+                        <option value="Asia/Manila" {% if settings.timezone == 'Asia/Manila' %}selected{% endif %}>Asia/Manila (UTC+8)</option>
+                        <option value="Asia/Qatar" {% if settings.timezone == 'Asia/Qatar' %}selected{% endif %}>Asia/Qatar (UTC+3)</option>
+                        <option value="Asia/Riyadh" {% if settings.timezone == 'Asia/Riyadh' %}selected{% endif %}>Asia/Riyadh (UTC+3)</option>
+                        <option value="Asia/Seoul" {% if settings.timezone == 'Asia/Seoul' %}selected{% endif %}>Asia/Seoul (UTC+9)</option>
+                        <option value="Asia/Shanghai" {% if settings.timezone == 'Asia/Shanghai' %}selected{% endif %}>Asia/Shanghai (UTC+8)</option>
+                        <option value="Asia/Singapore" {% if settings.timezone == 'Asia/Singapore' %}selected{% endif %}>Asia/Singapore (UTC+8)</option>
+                        <option value="Asia/Taipei" {% if settings.timezone == 'Asia/Taipei' %}selected{% endif %}>Asia/Taipei (UTC+8)</option>
+                        <option value="Asia/Tehran" {% if settings.timezone == 'Asia/Tehran' %}selected{% endif %}>Asia/Tehran (UTC+3:30)</option>
+                        <option value="Asia/Tokyo" {% if settings.timezone == 'Asia/Tokyo' %}selected{% endif %}>Asia/Tokyo (UTC+9)</option>
+                    </optgroup>
+                    <optgroup label="Australia & Pacific">
+                        <option value="Australia/Adelaide" {% if settings.timezone == 'Australia/Adelaide' %}selected{% endif %}>Australia/Adelaide (UTC+9:30)</option>
+                        <option value="Australia/Brisbane" {% if settings.timezone == 'Australia/Brisbane' %}selected{% endif %}>Australia/Brisbane (UTC+10)</option>
+                        <option value="Australia/Melbourne" {% if settings.timezone == 'Australia/Melbourne' %}selected{% endif %}>Australia/Melbourne (UTC+10)</option>
+                        <option value="Australia/Perth" {% if settings.timezone == 'Australia/Perth' %}selected{% endif %}>Australia/Perth (UTC+8)</option>
+                        <option value="Australia/Sydney" {% if settings.timezone == 'Australia/Sydney' %}selected{% endif %}>Australia/Sydney (UTC+10)</option>
+                        <option value="Pacific/Auckland" {% if settings.timezone == 'Pacific/Auckland' %}selected{% endif %}>Pacific/Auckland (UTC+12)</option>
+                        <option value="Pacific/Fiji" {% if settings.timezone == 'Pacific/Fiji' %}selected{% endif %}>Pacific/Fiji (UTC+12)</option>
+                        <option value="Pacific/Honolulu" {% if settings.timezone == 'Pacific/Honolulu' %}selected{% endif %}>Pacific/Honolulu (UTC-10)</option>
+                    </optgroup>
+                    <optgroup label="Europe">
+                        <option value="Europe/Amsterdam" {% if settings.timezone == 'Europe/Amsterdam' %}selected{% endif %}>Europe/Amsterdam (UTC+1)</option>
+                        <option value="Europe/Athens" {% if settings.timezone == 'Europe/Athens' %}selected{% endif %}>Europe/Athens (UTC+2)</option>
+                        <option value="Europe/Berlin" {% if settings.timezone == 'Europe/Berlin' %}selected{% endif %}>Europe/Berlin (UTC+1)</option>
+                        <option value="Europe/Brussels" {% if settings.timezone == 'Europe/Brussels' %}selected{% endif %}>Europe/Brussels (UTC+1)</option>
+                        <option value="Europe/Budapest" {% if settings.timezone == 'Europe/Budapest' %}selected{% endif %}>Europe/Budapest (UTC+1)</option>
+                        <option value="Europe/Copenhagen" {% if settings.timezone == 'Europe/Copenhagen' %}selected{% endif %}>Europe/Copenhagen (UTC+1)</option>
+                        <option value="Europe/Dublin" {% if settings.timezone == 'Europe/Dublin' %}selected{% endif %}>Europe/Dublin (UTC+0)</option>
+                        <option value="Europe/Helsinki" {% if settings.timezone == 'Europe/Helsinki' %}selected{% endif %}>Europe/Helsinki (UTC+2)</option>
+                        <option value="Europe/Istanbul" {% if settings.timezone == 'Europe/Istanbul' %}selected{% endif %}>Europe/Istanbul (UTC+3)</option>
+                        <option value="Europe/Lisbon" {% if settings.timezone == 'Europe/Lisbon' %}selected{% endif %}>Europe/Lisbon (UTC+0)</option>
+                        <option value="Europe/London" {% if settings.timezone == 'Europe/London' %}selected{% endif %}>Europe/London (UTC+0)</option>
+                        <option value="Europe/Madrid" {% if settings.timezone == 'Europe/Madrid' %}selected{% endif %}>Europe/Madrid (UTC+1)</option>
+                        <option value="Europe/Moscow" {% if settings.timezone == 'Europe/Moscow' %}selected{% endif %}>Europe/Moscow (UTC+3)</option>
+                        <option value="Europe/Oslo" {% if settings.timezone == 'Europe/Oslo' %}selected{% endif %}>Europe/Oslo (UTC+1)</option>
+                        <option value="Europe/Paris" {% if settings.timezone == 'Europe/Paris' %}selected{% endif %}>Europe/Paris (UTC+1)</option>
+                        <option value="Europe/Rome" {% if settings.timezone == 'Europe/Rome' %}selected{% endif %}>Europe/Rome (UTC+1)</option>
+                        <option value="Europe/Stockholm" {% if settings.timezone == 'Europe/Stockholm' %}selected{% endif %}>Europe/Stockholm (UTC+1)</option>
+                        <option value="Europe/Vienna" {% if settings.timezone == 'Europe/Vienna' %}selected{% endif %}>Europe/Vienna (UTC+1)</option>
+                        <option value="Europe/Warsaw" {% if settings.timezone == 'Europe/Warsaw' %}selected{% endif %}>Europe/Warsaw (UTC+1)</option>
+                        <option value="Europe/Zurich" {% if settings.timezone == 'Europe/Zurich' %}selected{% endif %}>Europe/Zurich (UTC+1)</option>
+                    </optgroup>
+                </select>
+                <p class="form-hint">Select your local timezone for accurate prayer time calculations.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2>Calculation</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="method">Calculation Method</label>
+                <select id="method" name="method">
+                    {% for m in ['MWL', 'ISNA', 'Egypt', 'Makkah', 'Karachi', 'Tehran', 'Jafari'] %}
+                    <option value="{{ m }}" {% if settings.method == m %}selected{% endif %}>{{ m }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="asr_method">ASR Method</label>
+                <select id="asr_method" name="asr_method">
+                    {% for m in ['Standard', 'Hanafi'] %}
+                    <option value="{{ m }}" {% if settings.asr_method == m %}selected{% endif %}>{{ m }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2>Volume</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="fajr_volume">Fajr Volume (mB)</label>
+                <input type="range" id="fajr_volume" name="fajr_volume" min="0" max="300"
+                       value="{{ settings.fajr_volume }}" oninput="document.getElementById('fajr_vol_display').textContent=this.value">
+                <span class="range-value" id="fajr_vol_display">{{ settings.fajr_volume }}</span>
+            </div>
+            <div class="form-group">
+                <label for="azaan_volume">Azaan Volume (mB)</label>
+                <input type="range" id="azaan_volume" name="azaan_volume" min="0" max="300"
+                       value="{{ settings.azaan_volume }}" oninput="document.getElementById('azaan_vol_display').textContent=this.value">
+                <span class="range-value" id="azaan_vol_display">{{ settings.azaan_volume }}</span>
+            </div>
+            <div class="form-group">
+                <label for="surahbaqarah_volume">Surah Baqarah Volume (mB)</label>
+                <input type="range" id="surahbaqarah_volume" name="surahbaqarah_volume" min="0" max="300"
+                       value="{{ settings.surahbaqarah_volume }}" oninput="document.getElementById('sbq_vol_display').textContent=this.value">
+                <span class="range-value" id="sbq_vol_display">{{ settings.surahbaqarah_volume }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2>Prayer Settings</h2>
+        <p class="form-hint">Time offsets adjust calculated times in minutes (positive = later, negative = earlier).</p>
+        <div class="table-scroll">
+        <table class="prayer-settings-table">
+            <thead>
+                <tr>
+                    <th>Prayer</th>
+                    <th>Enabled</th>
+                    <th>Offset (min)</th>
+                    <th>Time</th>
+                    <th>Audio File</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set offset_prayers = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] %}
+                {% for prayer in ['fajr', 'sunrise', 'imsak', 'dahwaekubra', 'dhuhr', 'asr', 'maghrib', 'iftardua', 'isha', 'surahbaqarah'] %}
+                <tr>
+                    <td class="prayer-name">{{ prayer | capitalize }}</td>
+                    <td class="cell-center">
+                        {% if prayer == 'sunrise' %}
+                        <span class="text-muted">--</span>
+                        {% else %}
+                        <input type="checkbox" name="enabled_prayers" value="{{ prayer }}"
+                               {% if prayer in settings.enabled_prayers %}checked{% endif %}>
+                        {% endif %}
+                    </td>
+                    <td class="cell-center">
+                        {% if prayer in offset_prayers %}
+                        <input type="number" class="offset-input" id="offset_{{ prayer }}" name="offset_{{ prayer }}"
+                               min="-30" max="30" value="{{ settings.time_offsets.get(prayer, 0) }}">
+                        {% else %}
+                        <span class="text-muted">--</span>
+                        {% endif %}
+                    </td>
+                    <td class="cell-center">
+                        {% if prayer == 'surahbaqarah' %}
+                        <input type="time" id="surahbaqarah_time" name="surahbaqarah_time"
+                               value="{{ settings.surahbaqarah_time or '10:15' }}">
+                        {% else %}
+                        <span class="text-muted">--</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if prayer == 'sunrise' %}
+                        <span class="text-muted">--</span>
+                        {% else %}
+                        <select id="audio_{{ prayer }}" name="audio_{{ prayer }}">
+                            {% for f in audio_files %}
+                            <option value="{{ f }}" {% if settings.audio_files.get(prayer) == f %}selected{% endif %}>{{ f }}</option>
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <div id="settings-errors" class="error-container"></div>
+
+    <div class="actions">
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+        <button type="button" class="btn btn-success"
+                onclick="document.getElementById('settings-form').addEventListener('htmx:afterRequest', function handler(evt) {
+                    var resp = JSON.parse(evt.detail.xhr.responseText);
+                    if (resp.success) {
+                        htmx.ajax('POST', '/api/apply', {swap:'none', handler:function(e,r){
+                            var d=JSON.parse(r);
+                            showToast(d.message, d.success ? 'success' : 'error');
+                        }});
+                    }
+                    this.removeEventListener('htmx:afterRequest', handler);
+                }); document.getElementById('settings-form').requestSubmit();">
+            Save &amp; Apply
+        </button>
+    </div>
+</form>
+
+<script>
+function getFormData() {
+    var form = document.getElementById('settings-form');
+    var data = {
+        latitude: parseFloat(form.latitude.value) || null,
+        longitude: parseFloat(form.longitude.value) || null,
+        timezone: form.timezone.value,
+        method: form.method.value,
+        asr_method: form.asr_method.value,
+        fajr_volume: parseInt(form.fajr_volume.value),
+        azaan_volume: parseInt(form.azaan_volume.value),
+        surahbaqarah_volume: parseInt(form.surahbaqarah_volume.value),
+        surahbaqarah_time: form.surahbaqarah_time ? form.surahbaqarah_time.value : '10:15',
+        enabled_prayers: [],
+        time_offsets: {},
+        audio_files: {}
+    };
+    form.querySelectorAll('input[name="enabled_prayers"]:checked').forEach(function(cb) {
+        data.enabled_prayers.push(cb.value);
+    });
+    var offsetKeys = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
+    offsetKeys.forEach(function(k) {
+        var el = form['offset_' + k];
+        data.time_offsets[k] = parseInt(el.value) || 0;
+    });
+    {% for prayer in settings.audio_files.keys() %}
+    data.audio_files['{{ prayer }}'] = form['audio_{{ prayer }}'].value;
+    {% endfor %}
+    return data;
+}
+
+function handleSettingsResponse(event) {
+    var xhr = event.detail.xhr;
+    var resp;
+    try { resp = JSON.parse(xhr.responseText); } catch(e) { resp = {success:false,errors:['Invalid response']}; }
+    var errDiv = document.getElementById('settings-errors');
+    if (resp.success) {
+        errDiv.innerHTML = '';
+        showToast('Settings saved successfully.', 'success');
+    } else {
+        errDiv.innerHTML = '<ul>' + (resp.errors||[]).map(function(e){return '<li>'+e+'</li>';}).join('') + '</ul>';
+        showToast('Failed to save settings.', 'error');
+    }
+}
+</script>
+{% endblock %}

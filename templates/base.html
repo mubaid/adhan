@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Adhan Clock{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">Adhan Clock</div>
+        <div class="nav-links">
+            <a href="/" class="{% if request.path == '/' %}active{% endif %}">Dashboard</a>
+            <a href="/settings" class="{% if request.path == '/settings' %}active{% endif %}">Settings</a>
+            <a href="/schedule" class="{% if request.path == '/schedule' %}active{% endif %}">Schedule</a>
+            <a href="/logs" class="{% if request.path == '/logs' %}active{% endif %}">Logs</a>
+        </div>
+    </nav>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+    <div id="toast-container"></div>
+    <script>
+        document.body.addEventListener('htmx:responseError', function(evt) {
+            showToast('Request failed: ' + evt.detail.xhr.statusText, 'error');
+        });
+        function showToast(message, type) {
+            var container = document.getElementById('toast-container');
+            var toast = document.createElement('div');
+            toast.className = 'toast toast-' + (type || 'info');
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(function() { toast.remove(); }, 4000);
+        }
+    </script>
+</body>
+</html>

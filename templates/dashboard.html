@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Adhan Clock{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+<p class="date">{{ now.strftime('%A, %B %d, %Y') }}</p>
+
+{% if not configured %}
+<div class="warning-banner">
+    Location not configured. <a href="/settings">Configure settings</a> to calculate prayer times.
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>Today's Prayer Times</h2>
+    <table class="prayer-table">
+        <thead>
+            <tr>
+                <th>Prayer</th>
+                <th>Time</th>
+                <th>Audio</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in prayer_list %}
+            <tr class="{% if p.key == next_prayer %}next-prayer{% endif %}{% if not p.enabled %}disabled-prayer{% endif %}">
+                <td>{{ p.label }}</td>
+                <td class="time">{{ p.time }}</td>
+                <td class="audio">{{ p.audio }}</td>
+                <td>
+                    {% if p.key == next_prayer %}
+                        <span class="badge badge-next">Next</span>
+                    {% elif p.enabled %}
+                        <span class="badge badge-enabled">Enabled</span>
+                    {% else %}
+                        <span class="badge badge-disabled">Disabled</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Current Settings</h2>
+    <div class="settings-summary">
+        <div class="summary-item">
+            <span class="label">Location</span>
+            <span class="value">{{ settings.latitude or 'Not set' }}, {{ settings.longitude or 'Not set' }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="label">Method</span>
+            <span class="value">{{ settings.method }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="label">ASR Method</span>
+            <span class="value">{{ settings.asr_method }}</span>
+        </div>
+        <div class="summary-item">
+            <span class="label">Timezone</span>
+            <span class="value">{{ settings.timezone }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="actions">
+    <button class="btn btn-primary"
+            hx-post="/api/apply"
+            hx-swap="none"
+            hx-disabled-elt="this"
+            onclick="var btn=this; btn.disabled=true; btn.textContent='Applying...';
+                    htmx.ajax('POST','/api/apply',{handler:function(elt,resp){
+                        var data=JSON.parse(resp);
+                        if(data.success){showToast(data.message,'success');}
+                        else{showToast(data.message,'error');}
+                        btn.disabled=false; btn.textContent='Apply Settings';
+                    }});">
+        Apply Settings
+    </button>
+    <a href="/settings" class="btn btn-secondary">Edit Settings</a>
+</div>
+{% endblock %}

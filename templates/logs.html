@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Logs - Adhan Clock{% endblock %}
+
+{% block content %}
+<h1>Logs</h1>
+
+<div class="card">
+    <div class="card-header">
+        <h2>adhan.log (last 100 lines)</h2>
+        <button class="btn btn-secondary btn-sm"
+                hx-get="/logs"
+                hx-target="body"
+                hx-swap="outerHTML">
+            Refresh
+        </button>
+    </div>
+    <div class="log-container" id="log-content">
+        {% if log_lines %}
+        <pre>{% for line in log_lines %}<span class="log-line{% if 'error' in line.lower() or 'fail' in line.lower() %} log-error{% endif %}">{{ line }}</span>{% endfor %}</pre>
+        {% else %}
+        <p class="empty-state">No log entries found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

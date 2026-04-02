@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Schedule - Adhan Clock{% endblock %}
+
+{% block content %}
+<h1>Cron Schedule</h1>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Active Jobs</h2>
+        <button class="btn btn-secondary btn-sm"
+                hx-get="/schedule"
+                hx-target="body"
+                hx-swap="outerHTML">
+            Refresh
+        </button>
+    </div>
+    {% if jobs %}
+    <table class="schedule-table">
+        <thead>
+            <tr>
+                <th>Command</th>
+                <th>Schedule</th>
+            </tr>
+        </thead>
+        <tbody id="schedule-table">
+            {% for job in jobs %}
+            <tr>
+                <td class="command-cell">{{ job.command }}</td>
+                <td class="schedule-cell">{{ job.schedule }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">No cron jobs found. <a href="/">Apply settings</a> from the dashboard to create jobs.</p>
+    {% endif %}
+</div>
+{% endblock %}
